@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="mk" xmlns:sec="">
+<head>
+  <meta charset="utf-8">
+  <title>Event Booking page - Добредојдовте</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <style>
+    body {
+      width: 100%;
+      margin: auto;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+
+    .form-section, .events-section {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .btn-custom {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Заглавие -->
+  <header class="text-center mb-4">
+    <h1 class="display-4">Добредојдовте во нашата апликација за настани</h1>
+  </header>
+
+  <!-- Пребарување на настан -->
+  <div class="form-section">
+    <h2 class="h4">Пребарај настан:</h2>
+    <form th:method="GET" th:action="@{/events/events-list}" class="form-inline">
+      <div class="form-group mr-3">
+        <label for="search" class="mr-2">Име на настан:</label>
+        <input type="text" name="searchName" id="search" placeholder="Пребарај настан" class="form-control">
+      </div>
+      <div class="form-group mr-3">
+        <label for="minRating" class="mr-2">Минимален рејтинг:</label>
+        <input type="number" name="minRating" id="minRating" min="0" max="10" placeholder="0.00 - 10.00" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary">Пребарај</button>
+    </form>
+  </div>
+
+  <!-- Кориснички информации -->
+  <div class="text-right mb-3">
+    <th:block sec:authorize="isAuthenticated()">
+      <a th:href="@{'/logout'}" class="btn btn-info btn-sm btn-custom">Одјави се</a>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()">
+      <a class="btn btn-success btn-sm btn-custom" href="#" sec:authentication="name">Админ</a>
+    </th:block>
+  </div>
+
+  <!-- Избор на настан -->
+  <div class="events-section">
+    <h2 class="h4">Избери настан:</h2>
+    <div th:each="event : ${events}" class="mb-3 p-3 border rounded">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <input type="radio" th:id="${event.getId()}" name="rad" th:value="${event.name}" class="mr-2"/>
+          <label th:for="${event.getId()}">
+            <strong>Име:</strong> <th:block th:text="${event.getName()}"></th:block>,
+            <strong>Опис:</strong> <th:block th:text="${event.getDescription()}"></th:block>,
+            <strong>Рејтинг:</strong> <th:block th:text="${event.getPopularityScore()}"></th:block>
+          </label>
+        </div>
+        <div>
+          <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+            <a th:href="@{'/events/events-list/delete/{id}' (id=${event.getId()})}" class="btn btn-danger btn-sm btn-custom">Избриши</a>
+            <a th:href="@{'/events/events-list/edit-form/{id}' (id=${event.getId()})}" class="btn btn-warning btn-sm btn-custom">Уреди</a>
+          </th:block>
+          <a th:href="@{'/events/events-list/event-details/{id}' (id=${event.getId()})}" class="btn btn-info btn-sm btn-custom">Детали</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Додади нов настан -->
+    <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+      <a href="/events/events-list/add-form" class="btn btn-dark btn-block mt-3">Додади нов настан</a>
+    </th:block>
+  </div>
+</div>
+</body>
+</html>
